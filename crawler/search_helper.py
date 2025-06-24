@@ -1,3 +1,5 @@
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -44,6 +46,7 @@ def go_to_next_page(driver, current_page: int) -> int:
         WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".PlaceItem"))
         )
+        time.sleep(2)
         return 1
     except:
         return 0  # 종료 신호
