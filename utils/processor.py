@@ -1,10 +1,23 @@
-import json
-from dataclasses import asdict
-from typing import List
-
 from utils.dto import HourInfo
 
 DAY_TO_IDX = {"월": 0, "화": 1, "수": 2, "목": 3, "금": 4, "토": 5, "일": 6}
+GU_TO_AREA = {
+    "부산진구": "서면•전포",
+    "영구": "광안리•민락",
+    "중구": "남포•광복",
+    "연제구": "연산•거제",
+    "해운대구": "해운대•송정",
+    "동래구": "동래•온천장",
+    "사하구": "하단•다대포",
+    "사상구": "괘법•엄궁",
+    "금정구": "장전•부산대",
+    "기장군": "기장읍•일광",
+    "강서구": "명지•대저",
+    "남구": "대연•문현",
+    "북구": "기타 지역",
+    "서구": "기타 지역",
+    "영도구": "기타 지역",
+}
 
 
 def day_to_int(day: str):
@@ -17,29 +30,8 @@ def tokenize(text: str):
     return " ".join(text.replace("~", " ~ ").split()).split()
 
 
-# ========================== 주소파싱
-def extract_gu_and_dong(full_adr: str, other_adr: str):
-    """주소 전문으로부터 행정구역 추출하는 메소드."""
-    gu = None
-    dong = None
-
-    try:
-        gu = full_adr.split(" ")[1] if len(full_adr.split(" ")) > 1 else None
-        parts = other_adr.split(", ")
-        jibeon = next((p for p in parts if "(지번)" in p), None)
-
-        if jibeon:
-            dong_part = jibeon.replace("(지번)", "").strip()
-            dong = dong_part.split(" ")[0] if dong_part else None
-
-    except Exception:
-        pass
-
-    return gu, dong
-
-
-# ========================== 영업시간 파싱
 def process_hours(rows):
+    """영업시간 가공하는 메소드."""
     infos: list[HourInfo] = []
 
     for row in rows:
@@ -72,3 +64,26 @@ def process_hours(rows):
             elif hours.strip() == "휴무일":
                 infos.append(HourInfo(dow, None, None, False))
     return [info.to_dict() for info in infos]
+
+
+def extract_gu_and_dong(full_adr: str, other_adr: str):
+    """주소 전문으로부터 행정구역 추출하는 메소드."""
+    gu = None
+    dong = None
+    area = None
+
+    try:
+        gu = full_adr.split(" ")[1] if len(full_adr.split(" ")) > 1 else None
+        parts = other_adr.split(", ")
+        jibeon = next((p for p in parts if "(지번)" in p), None)
+
+        if jibeon:
+            dong_part = jibeon.replace("(지번)", "").strip()
+            dong = dong_part.split(" ")[0] if dong_part else None
+
+        area = GU_TO_AREA.get(f"{gu}", "기타 지역")
+
+    except Exception:
+        pass
+
+    return gu, dong, area
