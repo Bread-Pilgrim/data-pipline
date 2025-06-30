@@ -4,8 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from utils.processor import process_hours
-from utils.scroll import scroll_to_bottom
+from utils.processor import extract_gu_and_dong, process_hours
 
 
 def extract_base_info(element):
@@ -14,18 +13,17 @@ def extract_base_info(element):
     name = element.find_element(By.CSS_SELECTOR, '[data-id="name"]').get_attribute(
         "title"
     )
-    print("빵집 이름 : ", name)
+    address = element.find_element(By.CSS_SELECTOR, '[data-id="address"]').text
+    other_address = element.find_element(By.CSS_SELECTOR, '[data-id="otherAddr"]').text
+    phone = element.find_element(By.CSS_SELECTOR, '[data-id="phone"]').text
+    gu, dong, area = extract_gu_and_dong(address, other_address)
     return {
         "name": name,  # 📦 빵집 이름
-        "address": element.find_element(
-            By.CSS_SELECTOR, '[data-id="address"]'
-        ).text,  # 📦 주소 전문
-        "other_address": element.find_element(
-            By.CSS_SELECTOR, '[data-id="otherAddr"]'
-        ).text,  # 📦 지번주소
-        "phone": element.find_element(
-            By.CSS_SELECTOR, '[data-id="phone"]'
-        ).text,  # 📦 연락처
+        "address": address,  # 📦 주소 전문
+        "gu": gu,  # 📦 자치구
+        "dong": dong,  # 📦 동
+        "area": area,  # 📦 상권지역
+        "phone": phone,  # 📦 연락처
     }
 
 
