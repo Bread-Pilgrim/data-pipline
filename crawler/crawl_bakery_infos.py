@@ -1,10 +1,10 @@
 import json
 import time
+from parser.bakery_parser import extract_base_info, extract_detail_info
 
 from selenium.webdriver.support import expected_conditions as EC
 
 from crawler.driver_helper import get_driver, open_crawl_url
-from crawler.parser.bakery_parser import extract_base_info, extract_detail_info
 from crawler.search_helper import extract_search_results, go_to_next_page, search_place
 
 
@@ -31,12 +31,13 @@ def crawl_bakery_infos(keyword="부산 빵집", max_page=3):
             try:
                 base_info = extract_base_info(room)
                 detail_info = extract_detail_info(driver, room)
-                results.append({**base_info, **detail_info})
+                if detail_info.get("menus"):  # menu에 빵메뉴가 하나도 없는 카페 추가 X
+                    # results.append({**detail_info})
+                    results.append({**base_info, **detail_info})
             except Exception as e:
                 print("1차 수집데이터 오류 발생 :  ", e)
 
         page += go_to_next_page(driver, page)
-
     driver.quit()
     return results
 

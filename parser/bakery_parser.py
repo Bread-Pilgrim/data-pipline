@@ -6,6 +6,29 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from utils.processor import extract_gu_and_dong, process_hours
 
+EXCLUDED_MENU_TARGETS = [
+    "아메리카노",
+    "라떼",
+    "아이스티",
+    "빙수",
+    "에스프레소",
+    "카푸치노",
+    "에이드",
+    "핸드드립",
+    "유자차",
+    "자몽차",
+    "레몬차",
+    "드립 커피",
+    "루이보스" "잉글리시브렉퍼스트",
+    "카페모카",
+    "카라멜마키아토",
+    "더치",
+    "아포가토",
+    "스무디",
+    "우유",
+    "밀크티",
+]
+
 
 def extract_base_info(element):
     """바로 긁어올 수 있는 요소 반환"""
@@ -86,21 +109,22 @@ def extract_menu_items(driver):
 
         for li in menu_list:
             name = li.find_element(By.CSS_SELECTOR, "strong.tit_item").text
-            price = li.find_element(By.CSS_SELECTOR, "p.desc_item").text
-            desc = li.find_elements(By.CSS_SELECTOR, "p.desc_item2")
-            signature = li.find_elements(By.CSS_SELECTOR, "span.badge_label")
-            img = li.find_elements(By.CSS_SELECTOR, "a.link_thumb > img")
+            if not any(target in name for target in EXCLUDED_MENU_TARGETS):
+                price = li.find_element(By.CSS_SELECTOR, "p.desc_item").text
+                desc = li.find_elements(By.CSS_SELECTOR, "p.desc_item2")
+                signature = li.find_elements(By.CSS_SELECTOR, "span.badge_label")
+                img = li.find_elements(By.CSS_SELECTOR, "a.link_thumb > img")
 
-            menu_items.append(
-                {
-                    "name": name,
-                    "price": price,
-                    "desc": desc[0].text if desc else None,
-                    "signature": signature[0].text if signature else None,
-                    "thumbnail": img[0].get_attribute("src") if img else None,
-                }
-            )
-            time.sleep(1)
+                menu_items.append(
+                    {
+                        "name": name,
+                        "price": price,
+                        "desc": desc[0].text if desc else None,
+                        "signature": signature[0].text if signature else None,
+                        "thumbnail": img[0].get_attribute("src") if img else None,
+                    }
+                )
+                time.sleep(1)
         return menu_items
     except Exception as e:
         print("메뉴 추출 실패 : ", e)
