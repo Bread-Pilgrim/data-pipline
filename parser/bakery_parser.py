@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from utils.processor import parse_open_hours
+from utils.processor import process_hours
 from utils.scroll import scroll_to_bottom
 
 
@@ -148,8 +148,7 @@ def extract_detail_info(driver, room_element):
 
         # 📦 영업시간
         hours = extract_operation_hours(driver, main_detail)
-        proceed_hours = parse_open_hours(hours)
-        print("proceed_hours : ", proceed_hours)
+        proceed_hours = process_hours(hours)
         # 📦 메뉴
         menus = extract_menu_items(driver)
 
