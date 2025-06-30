@@ -39,7 +39,7 @@ def extract_gu_and_dong(full_adr: str, other_adr: str):
 
 
 # ========================== 영업시간 파싱
-def parse_open_hours(rows: List[dict]) -> List[HourInfo]:
+def process_hours(rows):
     infos: list[HourInfo] = []
 
     for row in rows:
@@ -71,13 +71,4 @@ def parse_open_hours(rows: List[dict]) -> List[HourInfo]:
                 infos.append(HourInfo(dow, open_, close_, True))
             elif hours.strip() == "휴무일":
                 infos.append(HourInfo(dow, None, None, False))
-    return infos
-
-
-def process_bakery_info(raw: List[dict]) -> None:
-    for idx, data in enumerate(raw):
-        # 영업시간
-        hour_infos = parse_open_hours(data.get("open_hours", []))
-
-        with open(f"op_hour_{idx}.json", "w", encoding="utf-8") as f:
-            json.dump([asdict(h) for h in hour_infos], f, ensure_ascii=False, indent=2)
+    return [info.to_dict() for info in infos]
